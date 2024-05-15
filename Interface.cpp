@@ -27,17 +27,16 @@ void Interface::Update(sf::RenderWindow& window, sf::Time time)
 	// Вывод строк
 	for (size_t iterator = 0; iterator < textBoxes.size(); iterator++)
 	{
-		ImGui::Text(u8"Чат на порте:");
-		ImGui::SameLine();
-		ImGui::Text(std::to_string(ports.at(iterator)).c_str());
-		for (size_t iterator2 = 0; iterator2 < textBoxes.size(); iterator2++)
+		if (ImGui::CollapsingHeader(std::to_string(ports.at(iterator)).c_str()))
 		{
-			ImGui::TextWrapped(textBoxes[iterator][iterator2]);
-			//ImGui::InputTextMultiline(std::to_string(ports.at(iterator)).c_str(), textBoxes.at(iterator), IM_ARRAYSIZE(textBoxes.at(iterator)),
-			//	ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * textBoxHeight), ImGuiInputTextFlags_ReadOnly);
+			ImGui::BeginChild(std::to_string(ports.at(iterator)).c_str(), ImVec2(0, TEXT_BOX_HEIGHT), true);
+			for (size_t iterator2 = 0; iterator2 < textBoxes[iterator].size(); iterator2++)
+			{
+				ImGui::TextWrapped(textBoxes[iterator][iterator2]);
+			}
+			ImGui::EndChild();
 		}
 	}
-	
 	ImGui::StyleColorsClassic();
 	ImGui::End();
 }
@@ -48,48 +47,44 @@ void Interface::ModifyTextBox(std::string receivedString, std::string receivedNa
 	{
 		if (port == ports[iterator])
 		{
-			std::strcat(textBoxes[iterator], receivedName.c_str());
-			std::strcat(textBoxes[iterator], " : ");
-			std::strcat(textBoxes[iterator], receivedString.c_str());
-			std::strcat(textBoxes[iterator], "\n");
-
-			// Если заканчивается буфер textBox, то удаляем старые 2 * inputSize символов (В буфере помещается около 1000 сообщений размером 256 символов)
-			if (strlen(textBoxes[iterator]) + 2 * inputSize >= textBoxSize)
-			{
-				char* newTextBox = textBoxes[iterator] + 512;
-				// memmove O_o
-				memmove(textBoxes[iterator], newTextBox, strlen(newTextBox) + 1);
-			}
+			textBoxes[iterator].push_back(new char[TEXT_BOX_SIZE]());
+			std::strcat(textBoxes[iterator][textBoxes[iterator].size() - 1], receivedName.c_str());
+			std::strcat(textBoxes[iterator][textBoxes[iterator].size() - 1], " : ");
+			std::strcat(textBoxes[iterator][textBoxes[iterator].size() - 1], receivedString.c_str());
 		}
 	}
 }
 
-void Interface::ModifyTextBoxSystemMessage(std::string recievedString, unsigned short port)
+void Interface::ModifyTextBoxSystemMessage(std::string receivedString, unsigned short port)
 {
 	for (size_t iterator = 0; iterator < ports.size(); iterator++)
 	{
 		if (port == ports[iterator])
 		{
-			std::strcat(textBoxes[iterator], "\n");
-			std::strcat(textBoxes[iterator], "\t");
-			std::strcat(textBoxes[iterator], recievedString.c_str());
-			std::strcat(textBoxes[iterator], "\n");
+			textBoxes[iterator].push_back(new char[TEXT_BOX_SIZE]());
+			std::strcat(textBoxes[iterator][textBoxes[iterator].size() - 1], "\n");
+			std::strcat(textBoxes[iterator][textBoxes[iterator].size() - 1], "\t");
+			std::strcat(textBoxes[iterator][textBoxes[iterator].size() - 1], receivedString.c_str());
+			std::strcat(textBoxes[iterator][textBoxes[iterator].size() - 1], "\n");
 		}
 	}
 }
 
 void Interface::ModifyTextBoxSize()
 {
-
+	for (size_t iterator = 0; iterator < textBoxes.size(); iterator++)
+	{
+		while (textBoxes.size() > TEXT_BOX_MESSAGE_LIMIT)
+		{
+			textBoxes[iterator].erase(textBoxes[iterator].begin());
+		}
+	}
 }
 
-void Interface::AddTextBox(unsigned short newTag)
+void Interface::AddTextBox(unsigned short newPort)
 {
-	// Круглые скобки после [] важны, тогда массив инициализируется нуль-терминатором
-	// А создавать здесь переменную не получится
-	// У меня всегда получалась висячая ссылка
-	textBoxes.push_back(new char[textBoxSize]());
-	ports.push_back(newTag);
+	textBoxes.push_back(std::vector<char*>());
+	ports.push_back(newPort);
 }
 
 void Interface::SetIsCreateServerNetwork(bool newIsCreateServerNetwork)

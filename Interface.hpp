@@ -1,9 +1,9 @@
 ﻿// Везде бы использовал std::string, но ImGui использует const char :P
 
 #pragma once
-#define textBoxSize 65536
-#define textBoxHeight 16
-#define inputSize 128
+#define TEXT_BOX_SIZE 256
+#define TEXT_BOX_HEIGHT 256
+#define TEXT_BOX_MESSAGE_LIMIT 128
 
 #include <SFML/Graphics.hpp>
 
@@ -21,12 +21,12 @@ private:
 	std::vector<unsigned short> ports;
 	bool isCreateServerNetwork = false;
 public:
-	void Init(sf::RenderWindow& window);					// Инициализация интерфейса и поддержки кириллицы
-	void Update(sf::RenderWindow& window, sf::Time time);	// Функция обновления для управления
-	void AddTextBox(unsigned short);
-	void ModifyTextBox(std::string, std::string, unsigned short);
-	void ModifyTextBoxSystemMessage(std::string, unsigned short);
-	void ModifyTextBoxSize();
+	void Init(sf::RenderWindow& window);							// Инициализация интерфейса и поддержки кириллицы
+	void Update(sf::RenderWindow& window, sf::Time time);			// Функция обновления для управления
+	void AddTextBox(unsigned short);								// Добавляние очередного текствого окна с выводом сообщений из разных портов
+	void ModifyTextBox(std::string, std::string, unsigned short);	// Получаем сообщения и загружаем их textBoxes
+	void ModifyTextBoxSystemMessage(std::string, unsigned short);	// Уведомления системы об отключении
+	void ModifyTextBoxSize();										// Чтобы сообщения постоянно в программе не копились удаляем самые старые (TEXT_BOX_MESSAGE_LIMIT)
 	// Getters
 	bool GetIsCreateServerNetwork();
 	// Setters
