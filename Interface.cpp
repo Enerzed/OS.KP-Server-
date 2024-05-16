@@ -1,10 +1,10 @@
-#include "Interface.hpp"
+п»ї#include "Interface.hpp"
 
 void Interface::Init(sf::RenderWindow& window)
 {
-	// Инициализируем интерфейс
+	// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РёРЅС‚РµСЂС„РµР№СЃ
 	ImGui::SFML::Init(window, false);
-	// Включаем поддержку кириллицы
+	// Р’РєР»СЋС‡Р°РµРј РїРѕРґРґРµСЂР¶РєСѓ РєРёСЂРёР»Р»РёС†С‹
 	ImGuiIO& io = ImGui::GetIO();
 	io.Fonts->AddFontFromFileTTF("arial.ttf", 16.f, NULL, ImGui::GetIO().Fonts->GetGlyphRangesCyrillic());
 	ImGui::SFML::UpdateFontTexture();
@@ -12,19 +12,19 @@ void Interface::Init(sf::RenderWindow& window)
 
 void Interface::Update(sf::RenderWindow& window, sf::Time time)
 {
-	// Интерфейс
+	// РРЅС‚РµСЂС„РµР№СЃ
 	ImGui::SFML::Update(window, time);
 	ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 	ImGui::SetNextWindowSize(ImVec2(1280.f, 720.f));
-	ImGui::Begin(u8"Автор - Ошурков Никита Алексеевич, АлтГТУ им. И.И. Ползунова", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+	ImGui::Begin(u8"РђРІС‚РѕСЂ - РћС€СѓСЂРєРѕРІ РќРёРєРёС‚Р° РђР»РµРєСЃРµРµРІРёС‡, РђР»С‚Р“РўРЈ РёРј. Р.Р. РџРѕР»Р·СѓРЅРѕРІР°", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
-	// Кнопка создания сервера
-	if (ImGui::Button(u8"Создать новый сервер") == true)
+	// РљРЅРѕРїРєР° СЃРѕР·РґР°РЅРёСЏ СЃРµСЂРІРµСЂР°
+	if (ImGui::Button(u8"РЎРѕР·РґР°С‚СЊ РЅРѕРІС‹Р№ СЃРµСЂРІРµСЂ") == true)
 	{
 		isCreateServerNetwork = true;
 	}
 
-	// Вывод строк
+	// Р’С‹РІРѕРґ СЃС‚СЂРѕРє
 	for (size_t iterator = 0; iterator < textBoxes.size(); iterator++)
 	{
 		if (ImGui::CollapsingHeader(std::to_string(ports.at(iterator)).c_str()))
