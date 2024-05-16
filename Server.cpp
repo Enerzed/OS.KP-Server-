@@ -41,18 +41,14 @@ void Server::Run()
         {
             if (networks[iterator]->GetIsPacketsReceived() == true)
             {
-                //std::cout << "RECEIVED PACKETS" << std::endl;
                 std::vector<sf::Packet> packets = networks[iterator]->GetPackets();
-                //std::cout << "PACKETS SIZE = " << packets.size() << std::endl;
                 for (size_t iterator2 = 0; iterator2 < packets.size(); iterator2++)
                 {
-                    //std::cout << "GETTING PACKET" << std::endl;
                     std::string receivedString;
                     std::string receivedName;
                     std::string senderAddress;
                     unsigned short senderPort;
                     packets[iterator2] >> receivedString >> receivedName >> senderAddress >> senderPort;
-                    //std::cout << "DEBUG" << "From client " << receivedName << " with address " << senderAddress << ":" << senderPort << " - " << receivedString << std::endl;
                     interface.ModifyTextBox(receivedString, receivedName, iterator + basePort);
                 }
                 networks[iterator]->ClearPackets();
