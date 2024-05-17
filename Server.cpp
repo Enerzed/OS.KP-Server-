@@ -39,21 +39,17 @@ void Server::Run()
         }
         for (size_t iterator = 0; iterator < networks.size(); iterator++)
         {
-            if (networks[iterator]->GetIsPacketsReceived() == true)
+            std::vector<sf::Packet> packets = networks[iterator]->GetPackets();
+            for (size_t iterator2 = 0; iterator2 < packets.size(); iterator2++)
             {
-                std::vector<sf::Packet> packets = networks[iterator]->GetPackets();
-                for (size_t iterator2 = 0; iterator2 < packets.size(); iterator2++)
-                {
-                    std::string receivedString;
-                    std::string receivedName;
-                    std::string senderAddress;
-                    unsigned short senderPort;
-                    packets[iterator2] >> receivedString >> receivedName >> senderAddress >> senderPort;
-                    interface.ModifyTextBox(receivedString, receivedName, iterator + basePort);
-                }
-                networks[iterator]->ClearPackets();
-                networks[iterator]->SetIsPacketsReceived(false);
+                std::string receivedString;
+                std::string receivedName;
+                std::string senderAddress;
+                unsigned short senderPort;
+                packets[iterator2] >> receivedString >> receivedName >> senderAddress >> senderPort;
+                interface.ModifyTextBox(receivedString, receivedName, iterator + basePort);
             }
+            networks[iterator]->ClearPackets();
         }
         // Обновляем интерфейс
         interface.Update(window, time);

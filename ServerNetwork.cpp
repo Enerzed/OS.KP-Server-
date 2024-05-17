@@ -64,7 +64,6 @@ void ServerNetwork::BroadcastPacket(sf::Packet& replyPacket)
         }
         else
         {
-            packets.push_back(replyPacket);
             isPacketsReceived = true;
         }
     }
@@ -87,7 +86,7 @@ void ServerNetwork::ReceivePacket(sf::TcpSocket* client, size_t iterator)
         packet.clear();
 
         packet << receivedMessage << name << client->getRemoteAddress().toString() << client->getRemotePort();
-        
+        packets.push_back(packet);
         BroadcastPacket(packet);
         std::cout << "From client " << name << " with address " << client->getRemoteAddress().toString() << ":" << client->getRemotePort() << " - " << receivedMessage << std::endl;
     }
