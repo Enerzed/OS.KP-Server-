@@ -18,14 +18,14 @@
 class ServerNetwork
 {
 private:
-    sf::TcpListener listener;               // TcpListerner - тот же сокет, только он имеет всего одну роль: для прослушивания входящих соединиений
-    std::vector<sf::TcpSocket*> clients;    // Массив сокетов для каждого клиента
-    std::vector<sf::Packet> packets;        // Полученные пакеты
-    std::thread* connectionThread;          // Отдельный поток для подключения клиентов
-    std::string systemMessage;              // Различные сообщения
-    bool isSystemMessage = false;           // Если хотим отправить сообщение в основную экранную форму, то меняем флаг на true
-    bool isPacketsReceived = false;         // Если были получены пакеты ставим true
-    unsigned short listenPort;              // Порт для прослушивания
+    sf::TcpListener listener;                   // TcpListerner - тот же сокет, только он имеет всего одну роль: для прослушивания входящих соединиений
+    std::vector<sf::TcpSocket*> clients;        // Массив сокетов для каждого клиента
+    std::vector<sf::Packet> packets;            // Полученные пакеты
+    std::vector<std::string> systemMessages;    // Различные сообщения
+    std::thread* connectionThread;              // Отдельный поток для подключения клиентов
+    bool isSystemMessage = false;               // Если хотим отправить сообщение в основную экранную форму, то меняем флаг на true
+    bool isPacketsReceived = false;             // Если были получены пакеты ставим true
+    unsigned short listenPort;                  // Порт для прослушивания
 
 public:
     ServerNetwork(unsigned short);
@@ -36,9 +36,11 @@ public:
     void ManagePackets();                               // Получаем пакеты от каждого подключенного клиента (затем передаем их методу ReceivePacket)
     void Run();                                         // Запуск процесса
     void ClearPackets();
+    void ClearSystemMessages();
     // Setters
     void SetIsPacketsReceived(bool);
     // Getters
     std::vector<sf::Packet> GetPackets();
+    std::vector<std::string> GetSystemMessages();
     bool GetIsPacketsReceived();
 };

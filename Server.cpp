@@ -39,6 +39,15 @@ void Server::Run()
         }
         for (size_t iterator = 0; iterator < networks.size(); iterator++)
         {
+            for (size_t iterator2 = 0; iterator2 < networks[iterator]->GetSystemMessages().size(); iterator2++)
+            {
+                std::string receivedString = networks[iterator]->GetSystemMessages()[iterator2];
+                interface.ModifyTextBoxSystemMessage(receivedString, iterator + basePort);
+            }
+            networks[iterator]->ClearSystemMessages();
+        }
+        for (size_t iterator = 0; iterator < networks.size(); iterator++)
+        {
             std::vector<sf::Packet> packets = networks[iterator]->GetPackets();
             for (size_t iterator2 = 0; iterator2 < packets.size(); iterator2++)
             {

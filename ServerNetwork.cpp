@@ -2,24 +2,24 @@
 
 ServerNetwork::ServerNetwork(unsigned short port) : listenPort(port)
 {
-    systemMessage = "Server has started\n";
-    std::cout << systemMessage << std::endl;
+    systemMessages.push_back("Server has started\n");
+    std::cout << systemMessages.back() << std::endl;
 
     if (listener.listen(listenPort) != sf::Socket::Done)
     {
-        systemMessage = "Could not listen port: ";
-        systemMessage.append(std::to_string(listenPort));
+        systemMessages.push_back("Could not listen port: ");
+        systemMessages.back().append(std::to_string(listenPort));
         isSystemMessage = true;
 
-        std::cout << systemMessage << std::endl;
+        std::cout << systemMessages.back() << std::endl;
     }
     else
     {
-        systemMessage = "Listening port: ";
-        systemMessage.append(std::to_string(listenPort));
+        systemMessages.push_back("Listening port: ");
+        systemMessages.back().append(std::to_string(listenPort));
         isSystemMessage = true;
 
-        std::cout << systemMessage << std::endl;
+        std::cout << systemMessages.back() << std::endl;
 
         connectionThread = new std::thread(&ServerNetwork::ConnectClients, this, &clients);
     }
@@ -34,11 +34,15 @@ void ServerNetwork::ConnectClients(std::vector<sf::TcpSocket*>* clientArray)
         {
             newClient->setBlocking(false);
             clientArray->push_back(newClient);
-            std::cout << "Added client " << newClient->getRemoteAddress() << ":" << newClient->getRemotePort() << " on slot " << clientArray->size() << std::endl;
+            systemMessages.push_back("Added client ");
+            systemMessages.back().append(newClient->getRemoteAddress().toString()).append(":").append(std::to_string(newClient->getRemotePort())).append(" on slot ").append(std::to_string(clientArray->size())).append("\n");
+
+            std::cout << systemMessages.back();
         }
         else
         {
-            std::cout << "Server listener error, please restart the server" << std::endl;
+            systemMessages.push_back("Server listener error, please restart the server");
+            std::cout << systemMessages.back() << std::endl;
             delete (newClient);
             break;
         }
@@ -47,7 +51,9 @@ void ServerNetwork::ConnectClients(std::vector<sf::TcpSocket*>* clientArray)
 
 void ServerNetwork::DisconnectClient(sf::TcpSocket* socketPointer, size_t position)
 {
-    std::cout << "Client " << socketPointer->getRemoteAddress() << ":" << socketPointer->getRemotePort() << " disconnected" << std::endl;
+    systemMessages.push_back("Client");
+    systemMessages.back().append(socketPointer->getRemoteAddress().toString()).append(":").append(std::to_string(socketPointer->getRemotePort())).append(" disconnected\n");
+    std::cout << systemMessages.back() << std::endl;
     socketPointer->disconnect();
     delete (socketPointer);
     clients.erase(clients.begin() + position);
@@ -60,7 +66,8 @@ void ServerNetwork::BroadcastPacket(sf::Packet& replyPacket)
         sf::TcpSocket* client = clients[iterator];
         if (client->send(replyPacket) != sf::Socket::Done)
         {
-            std::cout << "Can't send broadcast" << std::endl;
+            systemMessages.push_back("Can't send broadcast\n");
+            std::cout << systemMessages.back() << std::endl;
         }
         else
         {
@@ -110,9 +117,19 @@ void ServerNetwork::ClearPackets()
     packets.clear();
 }
 
+void ServerNetwork::ClearSystemMessages()
+{
+    systemMessages.clear();
+}
+
 std::vector<sf::Packet> ServerNetwork::GetPackets()
 {
     return packets;
+}
+
+std::vector<std::string> ServerNetwork::GetSystemMessages()
+{
+    return systemMessages;
 }
 
 void ServerNetwork::SetIsPacketsReceived(bool newIsPacketsReceived)

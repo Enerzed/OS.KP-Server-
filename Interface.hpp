@@ -11,6 +11,7 @@
 #include <imgui.h>
 
 #include <iostream>
+#include <cstring>
 #include <vector>
 
 
