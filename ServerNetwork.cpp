@@ -48,8 +48,8 @@ void ServerNetwork::ConnectClients(std::vector<sf::TcpSocket*>* clients, std::ve
 
 void ServerNetwork::DisconnectClient(sf::TcpSocket* socketPointer, size_t position)
 {
-    systemMessages.push_back("Client");
-    systemMessages.back().append(socketPointer->getRemoteAddress().toString()).append(":").append(std::to_string(socketPointer->getRemotePort())).append(" disconnected\n");
+    systemMessages.push_back("Client ");
+    systemMessages.back().append(socketPointer->getRemoteAddress().toString()).append(":").append(std::to_string(socketPointer->getRemotePort())).append(" ").append(clientNames[position]).append(" disconnected\n");
     std::cout << systemMessages.back() << std::endl;
     
     socketPointer->disconnect();
@@ -84,9 +84,9 @@ void ServerNetwork::ReceivePacket(sf::TcpSocket* client, size_t iterator)
     if (packet.getDataSize() > 0)
     {
         size_t type;
-        std::string name;
+        //std::string name;
         std::string message;
-        packet >> type >> name >> message;
+        packet >> type >> message;
         packet.clear();
 
         switch (type)
@@ -94,8 +94,10 @@ void ServerNetwork::ReceivePacket(sf::TcpSocket* client, size_t iterator)
         case PACKET_TYPE_MESSAGE:
         {
             packet << type << clientNames[iterator] << message << client->getRemoteAddress().toString() << client->getRemotePort();
+
             packets.push_back(packet);
             BroadcastPacket(packet);
+
             std::cout << "From client " << clientNames[iterator] << " with address " << client->getRemoteAddress().toString() << ":" << client->getRemotePort() << " - " << message << std::endl;
             break;
         }
@@ -103,11 +105,10 @@ void ServerNetwork::ReceivePacket(sf::TcpSocket* client, size_t iterator)
         {
             clientNames[iterator] = message;
 
-            packet << type << clientNames[iterator] << message << client->getRemoteAddress().toString() << client->getRemotePort();
-
-
-
-            std::cout << "Client name of " << client->getRemoteAddress() << ":" << client->getRemotePort() << " - " << message << std::endl;
+            packet << type << message << client->getRemoteAddress().toString() << client->getRemotePort();
+            systemMessages.push_back("Client name of ");
+            systemMessages.back().append(client->getRemoteAddress().toString()).append(":").append(std::to_string(client->getRemotePort())).append(" - ").append(message).append("\n");
+            std::cout << systemMessages.back() << std::endl;
             break;
         }
         }
