@@ -53,7 +53,7 @@ void Server::Run()
             std::vector<sf::Packet> packets = networks[iterator]->GetPackets();
             for (size_t iterator2 = 0; iterator2 < packets.size(); iterator2++)
             {
-                size_t type;
+                unsigned short type;
                 std::string name;
                 std::string message;
                 std::string address;

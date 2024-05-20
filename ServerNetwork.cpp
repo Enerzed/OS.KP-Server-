@@ -83,7 +83,7 @@ void ServerNetwork::ReceivePacket(sf::TcpSocket* client, size_t iterator)
 
     if (packet.getDataSize() > 0)
     {
-        size_t type;
+        unsigned short type;
         //std::string name;
         std::string message;
         packet >> type >> message;

@@ -14,7 +14,7 @@ endif()
 project ("Server")
 
 # Добавьте источник в исполняемый файл этого проекта.
-add_executable (Server "Server.cpp" "Server.h" "ServerNetwork.cpp" "Interface.cpp")
+add_executable (Server "Server.cpp" "Server.h" "ServerNetwork.cpp" "ServerNetwork.hpp" "Interface.cpp" "Interface.hpp")
 
 # Если CMake версии 3.12 и новее то используем стандарт C++17
 if (CMAKE_VERSION VERSION_GREATER 3.12)
