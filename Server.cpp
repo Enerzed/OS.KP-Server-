@@ -37,26 +37,30 @@ void Server::Run()
         {
             networks[iterator]->Run();
         }
+        // Передаем системные сообщения
         for (size_t iterator = 0; iterator < networks.size(); iterator++)
         {
             for (size_t iterator2 = 0; iterator2 < networks[iterator]->GetSystemMessages().size(); iterator2++)
             {
-                std::string receivedString = networks[iterator]->GetSystemMessages()[iterator2];
-                interface.ModifyTextBoxSystemMessage(receivedString, iterator + basePort);
+                std::string message = networks[iterator]->GetSystemMessages()[iterator2];
+                interface.ModifyTextBoxSystemMessage(message, iterator + basePort);
             }
             networks[iterator]->ClearSystemMessages();
         }
+        // Передаем пакеты
         for (size_t iterator = 0; iterator < networks.size(); iterator++)
         {
             std::vector<sf::Packet> packets = networks[iterator]->GetPackets();
             for (size_t iterator2 = 0; iterator2 < packets.size(); iterator2++)
             {
-                std::string receivedString;
-                std::string receivedName;
-                std::string senderAddress;
-                unsigned short senderPort;
-                packets[iterator2] >> receivedString >> receivedName >> senderAddress >> senderPort;
-                interface.ModifyTextBox(receivedString, receivedName, iterator + basePort);
+                size_t type;
+                std::string name;
+                std::string message;
+                std::string address;
+                unsigned short port;
+
+                packets[iterator2] >> type >> name >> message >> address >> port;
+                interface.ModifyTextBox(message, name, iterator + basePort);
             }
             networks[iterator]->ClearPackets();
         }
