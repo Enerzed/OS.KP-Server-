@@ -4,18 +4,20 @@ ServerNetwork::ServerNetwork(unsigned short port) : listenPort(port)
 {
     systemMessages.push_back("Server has started\n");
     std::cout << systemMessages.back() << std::endl;
+    systemMessages.pop_back();
 
     if (listener.listen(listenPort) != sf::Socket::Done)
     {
         systemMessages.push_back("Could not listen port: ");
-        systemMessages.back().append(std::to_string(listenPort));
+        systemMessages.back().append(std::to_string(listenPort)).append("\n");
         std::cout << systemMessages.back() << std::endl;
     }
     else
     {
         systemMessages.push_back("Listening port: ");
-        systemMessages.back().append(std::to_string(listenPort));
+        systemMessages.back().append(std::to_string(listenPort)).append("\n");
         std::cout << systemMessages.back() << std::endl;
+        systemMessages.pop_back();
 
         connectionThread = new std::thread(&ServerNetwork::ConnectClients, this, &clients, &clientNames);
     }
@@ -59,12 +61,28 @@ void ServerNetwork::DisconnectClient(sf::TcpSocket* socketPointer, size_t positi
     clientNames.erase(clientNames.begin() + position);
 }
 
-void ServerNetwork::BroadcastPacket(sf::Packet& replyPacket)
+void ServerNetwork::BroadcastPacket(sf::Packet& packet, sf::IpAddress address, unsigned short port)
 {
     for (size_t iterator = 0; iterator < clients.size(); iterator++)
     {
         sf::TcpSocket* client = clients[iterator];
-        if (client->send(replyPacket) != sf::Socket::Done)
+        if (client->getRemoteAddress() != address || client->getRemotePort() != port)
+        {
+            if (client->send(packet) != sf::Socket::Done)
+            {
+                systemMessages.push_back("Can't send broadcast\n");
+                std::cout << systemMessages.back() << std::endl;
+            }
+        }
+    }
+}
+
+void ServerNetwork::BroadcastPacket(sf::Packet& packet)
+{
+    for (size_t iterator = 0; iterator < clients.size(); iterator++)
+    {
+        sf::TcpSocket* client = clients[iterator];
+        if (client->send(packet) != sf::Socket::Done)
         {
             systemMessages.push_back("Can't send broadcast\n");
             std::cout << systemMessages.back() << std::endl;
@@ -77,6 +95,10 @@ void ServerNetwork::ReceivePacket(sf::TcpSocket* client, size_t iterator)
     sf::Packet packet;
     if (client->receive(packet) == sf::Socket::Disconnected)
     {
+        packet.clear();
+        packet << (unsigned short)PACKET_TYPE_CLIENT_DISCONNECTED << clientNames[iterator] << client->getRemoteAddress().toString() << client->getRemotePort();
+        BroadcastPacket(packet, client->getRemoteAddress(), client->getRemotePort());
+
         DisconnectClient(client, iterator);
         return;
     }
@@ -98,17 +120,24 @@ void ServerNetwork::ReceivePacket(sf::TcpSocket* client, size_t iterator)
             packets.push_back(packet);
             BroadcastPacket(packet);
 
-            std::cout << "From client " << clientNames[iterator] << " with address " << client->getRemoteAddress().toString() << ":" << client->getRemotePort() << " - " << message << std::endl;
+            systemMessages.push_back("From ");
+            systemMessages.back().append(clientNames[iterator]).append(" with address ").append(client->getRemoteAddress().toString()).append(":").append(std::to_string(client->getRemotePort())).append(" - ").append(message).append("\n");
+            std::cout << systemMessages.back() << std::endl;
+            systemMessages.pop_back();
+
             break;
         }
-        case PACKET_TYPE_NAME:
+        case PACKET_TYPE_INITIAL_DATA:
         {
             clientNames[iterator] = message;
 
-            packet << type << message << client->getRemoteAddress().toString() << client->getRemotePort();
             systemMessages.push_back("Client name of ");
             systemMessages.back().append(client->getRemoteAddress().toString()).append(":").append(std::to_string(client->getRemotePort())).append(" - ").append(message).append("\n");
             std::cout << systemMessages.back() << std::endl;
+
+            packet << (unsigned short)PACKET_TYPE_CLIENT_CONNECTED << clientNames[iterator] << client->getRemoteAddress().toString() << client->getRemotePort();
+            BroadcastPacket(packet);
+
             break;
         }
         }

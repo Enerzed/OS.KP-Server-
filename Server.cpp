@@ -88,6 +88,7 @@ void Server::Run()
 int main()
 {
     system("chcp 65001");
+    std::cout << std::endl;
 
     Server server;
     server.Run();
