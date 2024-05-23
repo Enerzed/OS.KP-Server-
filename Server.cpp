@@ -6,84 +6,117 @@
 
 void Server::Run()
 {
-    ServerNetwork serverNetwork();
-    // Окно
-    sf::RenderWindow window(sf::VideoMode(1280, 720), L"Мессенджер Сервер", sf::Style::Close);
-    window.setFramerateLimit(120);
 
-    Interface interface;
-    interface.Init(window);
     // Время
     sf::Clock clock;
     // Основной цикл
-    while (window.isOpen())
+    while (window->isOpen())
     {
         sf::Time time = clock.getElapsedTime();
         clock.restart();
         // Обработка событий
         sf::Event event;
-        while (window.pollEvent(event))
+        while (window->pollEvent(event))
         {
             ImGui::SFML::ProcessEvent(event);
 
             if (event.type == sf::Event::Closed)
             {
                 
-                window.close();
+                window->close();
             }
         }
         // Сеть
-        for (size_t iterator = 0; iterator < networks.size(); iterator++)
-        {
-            networks[iterator]->Run();
-        }
+        RunNetwork();
         // Передаем системные сообщения
-        for (size_t iterator = 0; iterator < networks.size(); iterator++)
-        {
-            for (size_t iterator2 = 0; iterator2 < networks[iterator]->GetSystemMessages().size(); iterator2++)
-            {
-                std::string message = networks[iterator]->GetSystemMessages()[iterator2];
-                interface.ModifyTextBoxSystemMessage(message, iterator + basePort);
-            }
-            networks[iterator]->ClearSystemMessages();
-        }
+        RunSystemMessages();
         // Передаем пакеты
-        for (size_t iterator = 0; iterator < networks.size(); iterator++)
-        {
-            std::vector<sf::Packet> packets = networks[iterator]->GetPackets();
-            for (size_t iterator2 = 0; iterator2 < packets.size(); iterator2++)
-            {
-                unsigned short type;
-                std::string name;
-                std::string message;
-                std::string address;
-                unsigned short port;
-
-                packets[iterator2] >> type >> name >> message >> address >> port;
-                interface.ModifyTextBox(message, name, iterator + basePort);
-            }
-            networks[iterator]->ClearPackets();
-        }
+        RunPackets();
         // Обновляем интерфейс
-        interface.Update(window, time);
+        interface->Update(*window, time);
 
-        if (interface.GetIsCreateServerNetwork() == true)
+        if (interface->GetIsCreateServerNetwork() == true)
         {
-            interface.AddTextBox(port);
+            interface->AddTextBox(port);
             networks.push_back(new ServerNetwork(port++));
-            interface.SetIsCreateServerNetwork(false);
+            interface->SetIsCreateServerNetwork(false);
         }
         // Очищаем окно
-        window.clear();
+        window->clear();
         // Render интерфейса должен быть перед показом его на экране для того, чтобы он был на первом плане
-        ImGui::SFML::Render(window);
+        ImGui::SFML::Render(*window);
         // Показываем окно
-        window.display();
+        window->display();
     }
     // Отключаем ImGui-SFML после закрытия окна
     ImGui::SFML::Shutdown();
 }
 
+void Server::RunNetwork()
+{
+    for (size_t iterator = 0; iterator < networks.size(); iterator++)
+    {
+        networks[iterator]->Run();
+    }
+}
+
+void Server::RunSystemMessages()
+{
+    for (size_t iterator = 0; iterator < networks.size(); iterator++)
+    {
+        for (size_t iterator2 = 0; iterator2 < networks[iterator]->GetSystemMessages().size(); iterator2++)
+        {
+            std::string message = networks[iterator]->GetSystemMessages()[iterator2];
+            interface->ModifyTextBoxSystemMessage(message, iterator + basePort);
+        }
+        networks[iterator]->ClearSystemMessages();
+    }
+}
+
+void Server::RunPackets()
+{
+    for (size_t iterator = 0; iterator < networks.size(); iterator++)
+    {
+        std::vector<sf::Packet> packets = networks[iterator]->GetPackets();
+        for (size_t iterator2 = 0; iterator2 < packets.size(); iterator2++)
+        {
+            unsigned short type;
+            std::string name;
+            std::string message;
+            std::string address;
+            unsigned short port;
+
+            packets[iterator2] >> type >> name >> message >> address >> port;
+            interface->ModifyTextBox(message, name, iterator + basePort);
+        }
+        networks[iterator]->ClearPackets();
+    }
+}
+
+void Server::Callback()
+{
+    std::cout << "Sending server down packets\n";
+    sf::Packet packet;
+    packet << (unsigned short)PACKET_TYPE_SERVER_DOWN;
+    for (size_t iterator = 0; iterator < networks.size(); iterator++)
+    {
+        networks[iterator]->BroadcastPacket(packet);
+    }
+}
+
+void Server::AddClassVector(int signum)
+{
+    classVector.push_back(signum);
+}
+
+Server* classPtr = nullptr;
+void(SignalHandler(int));
+
+void SignalHandler(int sig)
+{
+    classPtr->AddClassVector(sig);
+    classPtr->Callback();
+}
 
 int main()
 {
@@ -91,6 +124,13 @@ int main()
     std::cout << std::endl;
 
     Server server;
+    classPtr = &server;
+
+    signal(SIGABRT, SignalHandler);
+    signal(SIGINT, SignalHandler);
+    signal(SIGBREAK, SignalHandler);
+    signal(SIGTERM, SignalHandler);
+
     server.Run();
 
     return 0;

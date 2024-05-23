@@ -5,6 +5,7 @@
 #define PACKET_TYPE_INITIAL_DATA 2
 #define PACKET_TYPE_CLIENT_CONNECTED 3
 #define PACKET_TYPE_CLIENT_DISCONNECTED 4
+#define PACKET_TYPE_SERVER_DOWN 5
 
 #include <iostream>
 #include <thread>
