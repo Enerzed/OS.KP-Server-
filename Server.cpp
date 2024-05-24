@@ -1,5 +1,4 @@
-﻿// Server.cpp: определяет точку входа для приложения.
-
+﻿// Устанавливаем кодировку utf-8
 #pragma execution_character_set("utf-8")
 
 #include "Server.h"
@@ -22,7 +21,7 @@ void Server::Run()
 
             if (event.type == sf::Event::Closed)
             {
-                
+                ServerDownHandler();
                 window->close();
             }
         }
@@ -93,7 +92,7 @@ void Server::RunPackets()
     }
 }
 
-void Server::Callback()
+void Server::ServerDownHandler()
 {
     std::cout << "Sending server down packets\n";
     sf::Packet packet;
@@ -104,6 +103,8 @@ void Server::Callback()
     }
 }
 
+
+// Сигналы
 void Server::AddClassVector(int signum)
 {
     classVector.push_back(signum);
@@ -115,8 +116,9 @@ void(SignalHandler(int));
 void SignalHandler(int sig)
 {
     classPtr->AddClassVector(sig);
-    classPtr->Callback();
+    classPtr->ServerDownHandler();
 }
+
 
 int main()
 {

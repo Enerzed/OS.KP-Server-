@@ -25,7 +25,6 @@ endif()
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads REQUIRED)
-target_link_libraries(Server PUBLIC Threads::Threads)
 
 # Подключаем зависимости
 add_subdirectory(dependencies)
@@ -33,3 +32,4 @@ add_subdirectory(dependencies)
 # Подключаем необходимые библиотеки
 target_link_libraries(Server PUBLIC ImGui-SFML::ImGui-SFML)
 target_link_libraries(Server PUBLIC sfml-network)
+target_link_libraries(Server PUBLIC Threads::Threads)

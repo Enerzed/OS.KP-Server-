@@ -9,7 +9,7 @@
 #include <SFML/Window.hpp>
 
 #include <vector>
-#include <signal.h>
+#include <csignal>
 
 
 class Server
@@ -34,7 +34,7 @@ public:
 	void RunNetwork();
 	void RunSystemMessages();
 	void RunPackets();
-	void Callback();
+	void ServerDownHandler();
 	void AddClassVector(int);
 };
 
