@@ -21,7 +21,10 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
 	set_property(TARGET Server PROPERTY CXX_STANDARD 17)
 endif()
 
-# Используем PThread
+# Добавляем шрифт
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/fonts/arial.ttf DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+# Используем PThread (Потоки POSIX)
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads REQUIRED)
