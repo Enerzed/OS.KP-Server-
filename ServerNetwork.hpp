@@ -7,6 +7,8 @@
 #define PACKET_TYPE_CLIENT_DISCONNECTED 4
 #define PACKET_TYPE_SERVER_DOWN 5
 
+#include "CPacket.hpp"
+
 #include <iostream>
 #include <thread>
 #include <vector>
