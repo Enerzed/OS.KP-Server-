@@ -61,6 +61,23 @@ void ServerNetwork::DisconnectClient(sf::TcpSocket* socketPointer, size_t positi
     clientNames.erase(clientNames.begin() + position);
 }
 
+void ServerNetwork::UnicastPacket(sf::Packet packet, sf::IpAddress address, unsigned short port)
+{
+    for (size_t iterator = 0; iterator < clients.size(); iterator++)
+    {
+        sf::TcpSocket* client = clients[iterator];
+        if (client->getRemoteAddress() == address && client->getRemotePort() == port)
+        {
+            if (client->send(packet) != sf::Socket::Done)
+            {
+                systemMessages.push_back("Can't send packet\n");
+                std::cout << systemMessages.back() << std::endl;
+            }
+            break;
+        }
+    }
+}
+
 void ServerNetwork::BroadcastPacket(sf::Packet& packet, sf::IpAddress address, unsigned short port)
 {
     for (size_t iterator = 0; iterator < clients.size(); iterator++)

@@ -7,15 +7,13 @@
 #define PACKET_TYPE_CLIENT_DISCONNECTED 4
 #define PACKET_TYPE_SERVER_DOWN 5
 
-#include "CPacket.hpp"
-
 #include <iostream>
 #include <thread>
 #include <vector>
 #include <chrono>
 #include <string.h>
 
-#include <SFML/Network.hpp>
+#include "EncryptedPacket.hpp"
 
 // Переопределяем размер допустимого размера содержимого sf::Packet
 #define MAX_RAW_DATA 256
@@ -36,6 +34,7 @@ public:
     ServerNetwork(unsigned short);
     void ConnectClients(std::vector<sf::TcpSocket*>*, std::vector<std::string>*);   // Подключаем клиентов к серверу
     void DisconnectClient(sf::TcpSocket*, size_t);                                  // Отключаем клиентов от сервера
+    void UnicastPacket(sf::Packet, sf::IpAddress, unsigned short);                  // Отправка пакета конкретному клиенту
     void BroadcastPacket(sf::Packet&);                                              // Рассылаем пакеты клиентам сервера
     void BroadcastPacket(sf::Packet&, sf::IpAddress, unsigned short);               // Рассылаем пакеты клиентам сервера кроме одного
     void ReceivePacket(sf::TcpSocket*, size_t);                                     // Получаем пакет и его содержимое

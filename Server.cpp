@@ -1,7 +1,16 @@
 ﻿// Устанавливаем кодировку utf-8
 #pragma execution_character_set("utf-8")
 
-#include "Server.h"
+#include "Server.hpp"
+
+Server::Server()
+{
+    // Инициализируем окно и интерфейс
+    window = new sf::RenderWindow(sf::VideoMode(1280, 720), L"Мессенджер Сервер", sf::Style::Close);
+    window->setFramerateLimit(120);
+    interface = new Interface();
+    interface->Init(*window);
+}
 
 void Server::Run()
 {
@@ -103,37 +112,7 @@ void Server::ServerDownHandler()
     }
 }
 
-
-// Сигналы
-void Server::AddClassVector(int signum)
+void Server::AddServerVector(int signum)
 {
-    classVector.push_back(signum);
-}
-
-Server* classPtr = nullptr;
-void(SignalHandler(int));
-
-void SignalHandler(int sig)
-{
-    classPtr->AddClassVector(sig);
-    classPtr->ServerDownHandler();
-}
-
-
-int main()
-{
-    system("chcp 65001");
-    std::cout << std::endl;
-
-    Server server;
-    classPtr = &server;
-
-    signal(SIGABRT, SignalHandler);
-    signal(SIGINT, SignalHandler);
-    signal(SIGBREAK, SignalHandler);
-    signal(SIGTERM, SignalHandler);
-
-    server.Run();
-
-    return 0;
+    serverVector.push_back(signum);
 }
