@@ -13,7 +13,8 @@
 #include <chrono>
 #include <string.h>
 
-#include "EncryptedPacket.hpp"
+#include "SFML/Network.hpp"
+#include "Encryption.hpp"
 
 // Переопределяем размер допустимого размера содержимого sf::Packet
 #define MAX_RAW_DATA 256

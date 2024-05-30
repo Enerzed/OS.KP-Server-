@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <vector>
 #include <openssl/evp.h>
 #include <openssl/aes.h>
 #include <openssl/rsa.h>
@@ -11,14 +12,32 @@
 class AESEncryption 
 {
 private:
-    const std::string key;
-    unsigned char iv[EVP_MAX_IV_LENGTH];
     const EVP_CIPHER* cipher;
-
+    std::string key;
+    std::string iv;
 public:
-    AESEncryption(const std::string& key);
-    std::string Encrypt(const std::string& plaintext);
-    std::string Decrypt(const std::string& ciphertext, unsigned char* ivv);
+    AESEncryption();
+    std::string Encrypt(const std::string&);
+    std::string Decrypt(const std::string&, std::string);
     void GenerateRandomIV();
-    unsigned char* GetIV();
+    void GenerateRandomKey();
+    std::string GetKey();
+    std::string GetIV();
+    void SetKey(std::string);
+    void SetIV(std::string);
+};
+
+
+class RSAEncryption 
+{
+private:
+    std::string publicKey;
+    std::string privateKey;
+public:
+    RSAEncryption();
+    std::string Encrypt(const std::string& plaintext);
+    std::string Decrypt(const std::string& ciphertext);
+    void GenerateKeys();
+    std::string GetPublicKey();
+    void SetPublicKey(std::string);
 };
