@@ -14,7 +14,6 @@ Server::Server()
 
 void Server::Run()
 {
-
     // Время
     sf::Clock clock;
     // Основной цикл
@@ -91,11 +90,9 @@ void Server::RunPackets()
             unsigned short type;
             std::string name;
             std::string message;
-            std::string address;
-            unsigned short port;
-
-            packets[iterator2] >> type >> name >> message >> address >> port;
-            interface->ModifyTextBox(message, name, iterator + basePort);
+            // Выводим содержимое пакета на экран
+            packets[iterator2] >> type >> name >> message;
+            interface->ModifyTextBox(message, name, networks[iterator]->GetPort());
         }
         networks[iterator]->ClearPackets();
     }

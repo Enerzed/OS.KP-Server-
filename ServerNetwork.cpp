@@ -1,27 +1,29 @@
 ﻿#include "ServerNetwork.hpp"
 
-ServerNetwork::ServerNetwork(unsigned short port) : listenPort(port)
+ServerNetwork::ServerNetwork(unsigned short port) : port(port)
 {
+    // Сообщение о старте работы сервера
     systemMessages.push_back("Server has started\n");
     std::cout << systemMessages.back() << std::endl;
     systemMessages.pop_back();
-
     // Генерируем ключи RSA
     rsa.GenerateKeys();
 
-    if (listener.listen(listenPort) != sf::Socket::Done)
+    if (listener.listen(port) != sf::Socket::Done)
     {
+        // Сообщение о невозможности прослушивания порта
         systemMessages.push_back("Could not listen port: ");
-        systemMessages.back().append(std::to_string(listenPort)).append("\n");
+        systemMessages.back().append(std::to_string(port)).append("\n");
         std::cout << systemMessages.back() << std::endl;
     }
     else
     {
+        // Сообщение о работе на порте
         systemMessages.push_back("Listening port: ");
-        systemMessages.back().append(std::to_string(listenPort)).append("\n");
+        systemMessages.back().append(std::to_string(port)).append("\n");
         std::cout << systemMessages.back() << std::endl;
         systemMessages.pop_back();
-
+        // Поток для подключения клиентов
         connectionThread = new std::thread(&ServerNetwork::ConnectClients, this, &clients, &clientNames);
     }
 }
@@ -118,7 +120,7 @@ void ServerNetwork::ReceivePacket(sf::TcpSocket* client, size_t iterator)
     if (client->receive(packet) == sf::Socket::Disconnected)
     {
         packet.clear();
-        packet << (unsigned short)PACKET_TYPE_CLIENT_DISCONNECTED << clientNames[iterator] << client->getRemoteAddress().toString() << client->getRemotePort();
+        packet << (unsigned short)PACKET_TYPE_CLIENT_DISCONNECTED << clientNames[iterator];
         BroadcastPacket(packet, client->getRemoteAddress(), client->getRemotePort());
 
         DisconnectClient(client, iterator);
@@ -128,7 +130,6 @@ void ServerNetwork::ReceivePacket(sf::TcpSocket* client, size_t iterator)
     if (packet.getDataSize() > 0)
     {
         unsigned short type;
-        //std::string name;
         std::string message;
         packet >> type >> message;
         packet.clear();
@@ -137,55 +138,55 @@ void ServerNetwork::ReceivePacket(sf::TcpSocket* client, size_t iterator)
         {
         case PACKET_TYPE_MESSAGE:
         {
-            packet << type << clientNames[iterator] << message << client->getRemoteAddress().toString() << client->getRemotePort();
-
-            packets.push_back(packet);
+            // Рассылаем пакет с нерасшифрованными данными дальше
+            packet << type << clientNames[iterator] << message;
             BroadcastPacket(packet);
-
-            systemMessages.push_back("From ");
-            systemMessages.back().append(clientNames[iterator]).append(" with address ").append(client->getRemoteAddress().toString()).append(":").append(std::to_string(client->getRemotePort())).append(" - ").append(aes[iterator]->Decrypt(message, aes[iterator]->GetIV())).append("\n");
+            // Пакет с расшифрованным сообщением используется для вывода на экран
+            packet.clear();
+            packet << type << clientNames[iterator] << aes[iterator]->Decrypt(message, aes[iterator]->GetIV());
+            packets.push_back(packet);
+            // Выводим сообщение в консоль
+            systemMessages.push_back(clientNames[iterator]);
+            systemMessages.back().append(": ").append(aes[iterator]->Decrypt(message, aes[iterator]->GetIV()));
             std::cout << systemMessages.back() << std::endl;
             systemMessages.pop_back();
-
             break;
         }
         case PACKET_TYPE_INITIAL_DATA:
         {
+            // В таком типе пакета в сообщении находится имя клиента, которое он себе выбрал
             clientNames[iterator] = message;
-
-            systemMessages.push_back("Client name of ");
-            systemMessages.back().append(client->getRemoteAddress().toString()).append(":").append(std::to_string(client->getRemotePort())).append(" - ").append(message).append("\n");
+            // Выводим имя в консоль
+            systemMessages.push_back("Client name is ");
+            systemMessages.back().append(message).append("\n");
             std::cout << systemMessages.back() << std::endl;
-
-            packet << (unsigned short)PACKET_TYPE_CLIENT_CONNECTED << clientNames[iterator] << client->getRemoteAddress().toString() << client->getRemotePort();
+            // Рассылаем пакет о подключении клиента
+            packet << (unsigned short)PACKET_TYPE_CLIENT_CONNECTED << clientNames[iterator];
             BroadcastPacket(packet);
-            
+            // Отсылаем этому клиенту пакет с RSA ключом
             packet.clear();
             packet << (unsigned short)PACKET_TYPE_RSA_KEY << rsa.GetPublicKey();
             SendPacket(packet, client->getRemoteAddress(), client->getRemotePort());
-
             break;
         }
         case PACKET_TYPE_AES_KEY:
         {
+            // Получаем AES ключ зашифрованный отданным клиенту RSA ключом
             aes[iterator]->SetKey(rsa.Decrypt(message));
-
+            // DEBUG
             //std::cout << "KEY : " << aes[iterator]->GetKey();
-
             //systemMessages.push_back("Got AES key\n");
             //std::cout << systemMessages.back() << std::endl;
-
             break;
         }
         case PACKET_TYPE_AES_IV:
         {
+            // Получаем вектор инициализации зашифрованный отданным клиенту RSA ключом
             aes[iterator]->SetIV(rsa.Decrypt(message));
-
+            // DEBUG
             //std::cout << "IV : " << aes[iterator]->GetIV();
-
             //systemMessages.push_back("Got IV\n");
             //std::cout << systemMessages.back() << std::endl;
-
             break;
         }
         }
@@ -223,4 +224,9 @@ std::vector<sf::Packet> ServerNetwork::GetPackets()
 std::vector<std::string> ServerNetwork::GetSystemMessages()
 {
     return systemMessages;
+}
+
+unsigned short ServerNetwork::GetPort()
+{
+    return port;
 }

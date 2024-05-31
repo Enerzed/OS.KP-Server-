@@ -26,13 +26,13 @@
 class ServerNetwork
 {
 private:
-    sf::TcpListener listener;                   // TcpListerner - тот же сокет, только он имеет всего одну роль: для прослушивания входящих соединиений
-    std::vector<sf::TcpSocket*> clients;        // Массив сокетов для каждого клиента
-    std::vector<std::string> clientNames;       // Имена клиентов
-    std::vector<sf::Packet> packets;            // Полученные пакеты
-    std::vector<std::string> systemMessages;    // Различные сообщения
-    std::thread* connectionThread;              // Отдельный поток для подключения клиентов
-    unsigned short listenPort;                  // Порт для прослушивания
+    sf::TcpListener listener;                       // TcpListerner - тот же сокет, только он имеет всего одну роль: для прослушивания входящих соединиений
+    std::vector<sf::TcpSocket*> clients;            // Массив сокетов для каждого клиента
+    std::vector<std::string> clientNames;           // Имена клиентов
+    std::vector<sf::Packet> packets;                // Полученные пакеты
+    std::vector<std::string> systemMessages;        // Различные сообщения
+    std::thread* connectionThread;                  // Отдельный поток для подключения клиентов
+    unsigned short port;                            // Порт для прослушивания
 
     RSAEncryption rsa;
     std::vector<AESEncryption*> aes;
@@ -41,7 +41,7 @@ public:
     ServerNetwork(unsigned short);
     void ConnectClients(std::vector<sf::TcpSocket*>*, std::vector<std::string>*);   // Подключаем клиентов к серверу
     void DisconnectClient(sf::TcpSocket*, size_t);                                  // Отключаем клиентов от сервера
-    void SendPacket(sf::Packet, sf::IpAddress, unsigned short);                  // Отправка пакета конкретному клиенту
+    void SendPacket(sf::Packet, sf::IpAddress, unsigned short);                     // Отправка пакета конкретному клиенту
     void BroadcastPacket(sf::Packet&);                                              // Рассылаем пакеты клиентам сервера
     void BroadcastPacket(sf::Packet&, sf::IpAddress, unsigned short);               // Рассылаем пакеты клиентам сервера кроме одного
     void ReceivePacket(sf::TcpSocket*, size_t);                                     // Получаем пакет и его содержимое
@@ -53,4 +53,5 @@ public:
     // Getters
     std::vector<sf::Packet> GetPackets();
     std::vector<std::string> GetSystemMessages();
+    unsigned short GetPort();
 };
