@@ -6,6 +6,9 @@
 #define PACKET_TYPE_CLIENT_CONNECTED 3
 #define PACKET_TYPE_CLIENT_DISCONNECTED 4
 #define PACKET_TYPE_SERVER_DOWN 5
+#define PACKET_TYPE_RSA_KEY 6
+#define PACKET_TYPE_AES_KEY 7
+#define PACKET_TYPE_AES_IV 8
 
 #include <iostream>
 #include <thread>
@@ -13,7 +16,7 @@
 #include <chrono>
 #include <string.h>
 
-#include "SFML/Network.hpp"
+#include <SFML/Network.hpp>
 #include "Encryption.hpp"
 
 // Переопределяем размер допустимого размера содержимого sf::Packet
@@ -31,11 +34,14 @@ private:
     std::thread* connectionThread;              // Отдельный поток для подключения клиентов
     unsigned short listenPort;                  // Порт для прослушивания
 
+    RSAEncryption rsa;
+    std::vector<AESEncryption*> aes;
+
 public:
     ServerNetwork(unsigned short);
     void ConnectClients(std::vector<sf::TcpSocket*>*, std::vector<std::string>*);   // Подключаем клиентов к серверу
     void DisconnectClient(sf::TcpSocket*, size_t);                                  // Отключаем клиентов от сервера
-    void UnicastPacket(sf::Packet, sf::IpAddress, unsigned short);                  // Отправка пакета конкретному клиенту
+    void SendPacket(sf::Packet, sf::IpAddress, unsigned short);                  // Отправка пакета конкретному клиенту
     void BroadcastPacket(sf::Packet&);                                              // Рассылаем пакеты клиентам сервера
     void BroadcastPacket(sf::Packet&, sf::IpAddress, unsigned short);               // Рассылаем пакеты клиентам сервера кроме одного
     void ReceivePacket(sf::TcpSocket*, size_t);                                     // Получаем пакет и его содержимое

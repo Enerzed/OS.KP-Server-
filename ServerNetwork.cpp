@@ -6,6 +6,9 @@ ServerNetwork::ServerNetwork(unsigned short port) : listenPort(port)
     std::cout << systemMessages.back() << std::endl;
     systemMessages.pop_back();
 
+    // Генерируем ключи RSA
+    rsa.GenerateKeys();
+
     if (listener.listen(listenPort) != sf::Socket::Done)
     {
         systemMessages.push_back("Could not listen port: ");
@@ -37,6 +40,7 @@ void ServerNetwork::ConnectClients(std::vector<sf::TcpSocket*>* clients, std::ve
             newClient->setBlocking(false);
             clients->push_back(newClient);
             clientNames->push_back("UNDEFINED");
+            aes.push_back(new AESEncryption);
         }
         else
         {
@@ -59,9 +63,10 @@ void ServerNetwork::DisconnectClient(sf::TcpSocket* socketPointer, size_t positi
 
     clients.erase(clients.begin() + position);
     clientNames.erase(clientNames.begin() + position);
+    aes.erase(aes.begin() + position);
 }
 
-void ServerNetwork::UnicastPacket(sf::Packet packet, sf::IpAddress address, unsigned short port)
+void ServerNetwork::SendPacket(sf::Packet packet, sf::IpAddress address, unsigned short port)
 {
     for (size_t iterator = 0; iterator < clients.size(); iterator++)
     {
@@ -138,7 +143,7 @@ void ServerNetwork::ReceivePacket(sf::TcpSocket* client, size_t iterator)
             BroadcastPacket(packet);
 
             systemMessages.push_back("From ");
-            systemMessages.back().append(clientNames[iterator]).append(" with address ").append(client->getRemoteAddress().toString()).append(":").append(std::to_string(client->getRemotePort())).append(" - ").append(message).append("\n");
+            systemMessages.back().append(clientNames[iterator]).append(" with address ").append(client->getRemoteAddress().toString()).append(":").append(std::to_string(client->getRemotePort())).append(" - ").append(aes[iterator]->Decrypt(message, aes[iterator]->GetIV())).append("\n");
             std::cout << systemMessages.back() << std::endl;
             systemMessages.pop_back();
 
@@ -154,6 +159,32 @@ void ServerNetwork::ReceivePacket(sf::TcpSocket* client, size_t iterator)
 
             packet << (unsigned short)PACKET_TYPE_CLIENT_CONNECTED << clientNames[iterator] << client->getRemoteAddress().toString() << client->getRemotePort();
             BroadcastPacket(packet);
+            
+            packet.clear();
+            packet << (unsigned short)PACKET_TYPE_RSA_KEY << rsa.GetPublicKey();
+            SendPacket(packet, client->getRemoteAddress(), client->getRemotePort());
+
+            break;
+        }
+        case PACKET_TYPE_AES_KEY:
+        {
+            aes[iterator]->SetKey(rsa.Decrypt(message));
+
+            //std::cout << "KEY : " << aes[iterator]->GetKey();
+
+            //systemMessages.push_back("Got AES key\n");
+            //std::cout << systemMessages.back() << std::endl;
+
+            break;
+        }
+        case PACKET_TYPE_AES_IV:
+        {
+            aes[iterator]->SetIV(rsa.Decrypt(message));
+
+            //std::cout << "IV : " << aes[iterator]->GetIV();
+
+            //systemMessages.push_back("Got IV\n");
+            //std::cout << systemMessages.back() << std::endl;
 
             break;
         }
