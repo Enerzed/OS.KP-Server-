@@ -111,14 +111,19 @@ void ServerNetwork::BroadcastPacket(sf::Packet& packet)
 
     for (size_t iterator = 0; iterator < clients.size(); iterator++)
     {
-        //sf::TcpSocket* client = clients[iterator];
         packet >> type;
 
         if (type == PACKET_TYPE_MESSAGE)
         {
             packet >> name >> message;
             packet.clear();
-            packet << type << name << aes[iterator]->Encrypt(message);
+            packet << type << aes[iterator]->Encrypt(name) << aes[iterator]->Encrypt(message);
+        }
+        else if (type == PACKET_TYPE_CLIENT_NAME || type == PACKET_TYPE_CLIENT_DISCONNECTED)
+        {
+            packet >> name;
+            packet.clear();
+            packet << type << aes[iterator]->Encrypt(name);
         }
         else
         {
@@ -185,10 +190,10 @@ void ServerNetwork::ReceivePacket(sf::TcpSocket* client, size_t iterator)
         case PACKET_TYPE_CLIENT_NAME:
         {
             // В таком типе пакета в сообщении находится имя клиента, которое он себе выбрал
-            clientNames[iterator] = message;
+            clientNames[iterator] = aes[iterator]->Decrypt(message, aes[iterator]->GetIV());
             // Выводим имя в консоль
             systemMessages.push_back("Client name is ");
-            systemMessages.back().append(message).append("\n");
+            systemMessages.back().append(aes[iterator]->Decrypt(message, aes[iterator]->GetIV())).append("\n");
             std::cout << systemMessages.back() << std::endl;
             packet.clear();
             packet << (unsigned short)PACKET_TYPE_CLIENT_NAME << clientNames[iterator];
