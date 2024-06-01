@@ -2,7 +2,7 @@
 #pragma once
 
 #define PACKET_TYPE_MESSAGE 1
-#define PACKET_TYPE_INITIAL_DATA 2
+#define PACKET_TYPE_CLIENT_NAME 2
 #define PACKET_TYPE_CLIENT_CONNECTED 3
 #define PACKET_TYPE_CLIENT_DISCONNECTED 4
 #define PACKET_TYPE_SERVER_DOWN 5
@@ -42,7 +42,7 @@ public:
     void ConnectClients(std::vector<sf::TcpSocket*>*, std::vector<std::string>*);   // Подключаем клиентов к серверу
     void DisconnectClient(sf::TcpSocket*, size_t);                                  // Отключаем клиентов от сервера
     void SendPacket(sf::Packet, sf::IpAddress, unsigned short);                     // Отправка пакета конкретному клиенту
-    void BroadcastPacket(sf::Packet&);                                              // Рассылаем пакеты клиентам сервера
+    void BroadcastPacket(sf::Packet&);                                              // Рассылаем пакеты клиентам сервера (Отсылать зашифрованные сообщения тут)
     void BroadcastPacket(sf::Packet&, sf::IpAddress, unsigned short);               // Рассылаем пакеты клиентам сервера кроме одного
     void ReceivePacket(sf::TcpSocket*, size_t);                                     // Получаем пакет и его содержимое
     void ManagePackets();                                                           // Получаем пакеты от каждого подключенного клиента (затем передаем их методу ReceivePacket)
