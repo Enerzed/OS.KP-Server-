@@ -13,8 +13,8 @@ class AESEncryption
 {
 private:
     const EVP_CIPHER* cipher;
-    std::string key;
-    std::string iv;
+    std::string key = "NO_KEY";
+    std::string iv = "NO_IV";
 public:
     AESEncryption();
     std::string Encrypt(const std::string&);

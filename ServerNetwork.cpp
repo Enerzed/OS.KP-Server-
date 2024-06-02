@@ -107,7 +107,6 @@ void ServerNetwork::BroadcastPacket(sf::Packet& packet)
     std::string message;
     sf::Packet restore = packet;
     unsigned short type;
-    
 
     for (size_t iterator = 0; iterator < clients.size(); iterator++)
     {
@@ -119,7 +118,13 @@ void ServerNetwork::BroadcastPacket(sf::Packet& packet)
             packet.clear();
             packet << type << aes[iterator]->Encrypt(name) << aes[iterator]->Encrypt(message);
         }
-        else if (type == PACKET_TYPE_CLIENT_NAME || type == PACKET_TYPE_CLIENT_DISCONNECTED)
+        else if (type == PACKET_TYPE_CLIENT_NAME)
+        {
+            packet >> name;
+            packet.clear();
+            packet << type << aes[iterator]->Encrypt(name);
+        }
+        else if (type == PACKET_TYPE_CLIENT_DISCONNECTED)
         {
             packet >> name;
             packet.clear();
@@ -143,11 +148,10 @@ void ServerNetwork::ReceivePacket(sf::TcpSocket* client, size_t iterator)
     sf::Packet packet;
     if (client->receive(packet) == sf::Socket::Disconnected)
     {
+        DisconnectClient(client, iterator);
         packet.clear();
         packet << (unsigned short)PACKET_TYPE_CLIENT_DISCONNECTED << clientNames[iterator];
-        BroadcastPacket(packet, client->getRemoteAddress(), client->getRemotePort());
-
-        DisconnectClient(client, iterator);
+        BroadcastPacket(packet);
         return;
     }
 
@@ -178,12 +182,15 @@ void ServerNetwork::ReceivePacket(sf::TcpSocket* client, size_t iterator)
         }
         case PACKET_TYPE_CLIENT_CONNECTED:
         {
+            std::this_thread::sleep_for(std::chrono::milliseconds{ 64 });
             // Рассылаем пакет о подключении клиента
-            packet << (unsigned short)PACKET_TYPE_CLIENT_CONNECTED << client->getRemoteAddress().toString() << client->getRemotePort();
-            BroadcastPacket(packet);
+            //packet << (unsigned short)PACKET_TYPE_CLIENT_CONNECTED << client->getRemoteAddress().toString() << client->getRemotePort();
+            //BroadcastPacket(packet);
             // Отсылаем этому клиенту пакет с RSA ключом
             packet.clear();
             packet << (unsigned short)PACKET_TYPE_RSA_KEY << rsa.GetPublicKey();
+            // Пауза на 32 миллисекунды
+            std::this_thread::sleep_for(std::chrono::milliseconds{ 32 });
             SendPacket(packet, client->getRemoteAddress(), client->getRemotePort());
             break;
         }
