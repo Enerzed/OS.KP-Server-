@@ -20,7 +20,7 @@ private:
 public:
     AESEncryption();
     std::string Encrypt(const std::string&);
-    std::string Decrypt(const std::string&, std::string);
+    std::string Decrypt(const std::string&);
     void GenerateRandomIV();
     void GenerateRandomKey();
     std::string GetKey();
@@ -33,8 +33,8 @@ public:
 class RSAEncryption 
 {
 private:
-    std::string publicKey;
-    std::string privateKey;
+    std::string publicKey = "NO_KEY";
+    std::string privateKey = "NO_KEY";
 public:
     RSAEncryption();
     std::string Encrypt(const std::string& plaintext);

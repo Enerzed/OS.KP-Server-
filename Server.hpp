@@ -16,6 +16,7 @@ class Server
 {
 private:
 	sf::RenderWindow* window;					// Основное окно программы
+	sf::Time* time;								// Время SFML
 	std::vector<ServerNetwork*> networks;		// Сервера, к которым подключаются клиенты
 	Interface* interface;						// Интерфейс
 	unsigned short basePort = BASE_PORT;		// Базовый порт

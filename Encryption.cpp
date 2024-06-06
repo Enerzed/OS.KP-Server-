@@ -34,7 +34,7 @@ std::string AESEncryption::Encrypt(const std::string& plaintext)
     return ciphertext.substr(0, ciphertext_len);
 }
 
-std::string AESEncryption::Decrypt(const std::string& ciphertext, std::string iv)
+std::string AESEncryption::Decrypt(const std::string& ciphertext)
 {
 
     EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();

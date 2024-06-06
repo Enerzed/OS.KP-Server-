@@ -167,15 +167,15 @@ void ServerNetwork::ReceivePacket(sf::TcpSocket* client, size_t iterator)
         case PACKET_TYPE_MESSAGE:
         {
             // Рассылаем пакет
-            packet << type << clientNames[iterator] << aes[iterator]->Decrypt(message, aes[iterator]->GetIV());
+            packet << type << clientNames[iterator] << aes[iterator]->Decrypt(message);
             BroadcastPacket(packet);
             // Пакет с расшифрованным сообщением используется для вывода на экран
             packet.clear();
-            packet << type << clientNames[iterator] << aes[iterator]->Decrypt(message, aes[iterator]->GetIV());
+            packet << type << clientNames[iterator] << aes[iterator]->Decrypt(message);
             packets.push_back(packet);
             // Выводим сообщение в консоль
             systemMessages.push_back(clientNames[iterator]);
-            systemMessages.back().append(": ").append(aes[iterator]->Decrypt(message, aes[iterator]->GetIV()));
+            systemMessages.back().append(": ").append(aes[iterator]->Decrypt(message));
             std::cout << systemMessages.back() << std::endl;
             systemMessages.pop_back();
             break;
@@ -197,10 +197,10 @@ void ServerNetwork::ReceivePacket(sf::TcpSocket* client, size_t iterator)
         case PACKET_TYPE_CLIENT_NAME:
         {
             // В таком типе пакета в сообщении находится имя клиента, которое он себе выбрал
-            clientNames[iterator] = aes[iterator]->Decrypt(message, aes[iterator]->GetIV());
+            clientNames[iterator] = aes[iterator]->Decrypt(message);
             // Выводим имя в консоль
             systemMessages.push_back("Client name is ");
-            systemMessages.back().append(aes[iterator]->Decrypt(message, aes[iterator]->GetIV())).append("\n");
+            systemMessages.back().append(aes[iterator]->Decrypt(message)).append("\n");
             std::cout << systemMessages.back() << std::endl;
             packet.clear();
             packet << (unsigned short)PACKET_TYPE_CLIENT_NAME << clientNames[iterator];

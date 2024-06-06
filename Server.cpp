@@ -8,6 +8,7 @@ Server::Server()
     // Инициализируем окно и интерфейс
     window = new sf::RenderWindow(sf::VideoMode(1280, 720), L"Мессенджер Сервер", sf::Style::Close);
     window->setFramerateLimit(120);
+    time = new sf::Time();
     interface = new Interface();
     interface->Init(*window);
 }
@@ -19,7 +20,7 @@ void Server::Run()
     // Основной цикл
     while (window->isOpen())
     {
-        sf::Time time = clock.getElapsedTime();
+        *time = clock.getElapsedTime();
         clock.restart();
         // Обработка событий
         sf::Event event;
@@ -93,7 +94,7 @@ void Server::RunPackets()
 
 void Server::RunInterface()
 {
-    interface->Update(*window, time);
+    interface->Update(*window, *time);
 
     if (interface->GetIsCreateServerNetwork() == true)
     {
