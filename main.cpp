@@ -1,4 +1,4 @@
-// Устанавливаем кодировку utf-8
+п»ї// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РєРѕРґРёСЂРѕРІРєСѓ utf-8
 #pragma execution_character_set("utf-8")
 #include "Server.hpp"
 
@@ -15,16 +15,16 @@ void SignalHandler(int signal)
 
 int main()
 {
-    // Кодировка
+    // РљРѕРґРёСЂРѕРІРєР°
     system("chcp 65001");
     std::cout << std::endl;
-    // Сервер
+    // РЎРµСЂРІРµСЂ
     Server server;
     ServerPtr = &server;
-    // Сигналы
+    // РЎРёРіРЅР°Р»С‹
     signal(SIGABRT, SignalHandler);
     signal(SIGINT, SignalHandler);\
-    // SIGBREAK только на Windows
+    // SIGBREAK С‚РѕР»СЊРєРѕ РЅР° Windows
     //signal(SIGBREAK, SignalHandler);
     signal(SIGTERM, SignalHandler);
     server.Run();
