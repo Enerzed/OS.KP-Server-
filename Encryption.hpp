@@ -8,38 +8,38 @@
 #include <openssl/aes.h>
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
-#include "openssl/rand.h"
+#include <openssl/rand.h>
 
 
 class AESEncryption 
 {
 private:
-    const EVP_CIPHER* cipher;
-    std::string key = "NO_KEY";
-    std::string iv = "NO_IV";
+    const EVP_CIPHER* cipher;                       // Вид шифрования
+    std::string key = "NO_KEY";                     // Ключ
+    std::string iv = "NO_IV";                       // Вектор инициализации
 public:
-    AESEncryption();
-    std::string Encrypt(const std::string&);
-    std::string Decrypt(const std::string&);
-    void GenerateRandomIV();
-    void GenerateRandomKey();
-    std::string GetKey();
-    std::string GetIV();
-    void SetKey(std::string);
-    void SetIV(std::string);
+    AESEncryption();                                // Констуктор, здесь подключаем основные методы OpenSSL
+    std::string Encrypt(const std::string&);        // Шифрование
+    std::string Decrypt(const std::string&);        // Дешифрование
+    void GenerateRandomIV();                        // Генерируем случайный вектор инициализации длиной 16 байт методом RAND_bytes
+    void GenerateRandomKey();                       // Генерируем случайный ключ длиной 32 байта методом RAND_bytes
+    std::string GetKey();                           // Получаем ключ
+    std::string GetIV();                            // Получаем вектор инициализации
+    void SetKey(std::string);                       // Устанавливаем ключ, если сгенерированный не нужен
+    void SetIV(std::string);                        // Устанавливаем вектор инициализации, если сгенерированный не нужен
 };
 
 
 class RSAEncryption 
 {
 private:
-    std::string publicKey = "NO_KEY";
-    std::string privateKey = "NO_KEY";
+    std::string publicKey = "NO_KEY";               // Публичный ключ
+    std::string privateKey = "NO_KEY";              // Приватный ключ
 public:
     RSAEncryption();
-    std::string Encrypt(const std::string& plaintext);
-    std::string Decrypt(const std::string& ciphertext);
-    void GenerateKeys();
-    std::string GetPublicKey();
-    void SetPublicKey(std::string);
+    std::string Encrypt(const std::string&);        // Шифрование
+    std::string Decrypt(const std::string&);        // Дешифрование
+    void GenerateKeys();                            // Генерация RSA ключа
+    std::string GetPublicKey();                     // Получение публичного ключа
+    void SetPublicKey(std::string);                 // Установка публичного ключа
 };

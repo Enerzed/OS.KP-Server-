@@ -109,6 +109,7 @@ std::string RSAEncryption::Encrypt(const std::string& plaintext)
     // Зашифровываем
     int maxLength = RSA_size(rsa);
     std::string ciphertext;
+
     ciphertext.resize(maxLength);
     int ciphertextLength = RSA_public_encrypt(plaintext.length(), reinterpret_cast<const unsigned char*>(plaintext.c_str()), reinterpret_cast<unsigned char*>(&ciphertext[0]), rsa, RSA_PKCS1_PADDING);
     ciphertext.resize(ciphertextLength);
@@ -127,6 +128,7 @@ std::string RSAEncryption::Decrypt(const std::string& ciphertext)
     // Расшифровываем
     int maxLength = RSA_size(rsa);
     std::string plaintext;
+
     plaintext.resize(maxLength);
     int plaintextLength = RSA_private_decrypt(ciphertext.length(), reinterpret_cast<const unsigned char*>(ciphertext.c_str()), reinterpret_cast<unsigned char*>(&plaintext[0]), rsa, RSA_PKCS1_PADDING);
     plaintext.resize(plaintextLength);
