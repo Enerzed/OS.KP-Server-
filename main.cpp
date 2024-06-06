@@ -26,6 +26,8 @@ int main()
     signal(SIGINT, SignalHandler);\
     // SIGBREAK только на Windows
     //signal(SIGBREAK, SignalHandler);
+    // SIGHUP на Windows нет
+    //signal(SIGHUP, SignalHandler);
     signal(SIGTERM, SignalHandler);
     server.Run();
     return 0;
