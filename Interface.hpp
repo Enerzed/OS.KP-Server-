@@ -18,9 +18,9 @@
 class Interface
 {
 private:
-	std::vector<std::vector<char*>> textBoxes;
-	std::vector<unsigned short> ports;
-	bool isCreateServerNetwork = false;
+	std::vector<std::vector<char*>> textBoxes;						// Поля чатов
+	std::vector<unsigned short> ports;								// Порты чатов
+	bool isCreateServerNetwork = false;								// Флаг была ли нажата кнопка создания чата
 public:
 	void Init(sf::RenderWindow& window);							// Инициализация интерфейса и поддержки кириллицы
 	void Update(sf::RenderWindow& window, sf::Time time);			// Функция обновления для управления
@@ -29,7 +29,7 @@ public:
 	void ModifyTextBoxSystemMessage(std::string, unsigned short);	// Уведомления системы об отключении
 	void ModifyTextBoxSize();										// Чтобы сообщения постоянно в программе не копились удаляем самые старые (TEXT_BOX_MESSAGE_LIMIT)
 	// Getters
-	bool GetIsCreateServerNetwork();
+	bool GetIsCreateServerNetwork();								// Для получения значения была ли нажата кнопка создания чата
 	// Setters
-	void SetIsCreateServerNetwork(bool);
+	void SetIsCreateServerNetwork(bool);							// После того как чат создали устанавливаем кнопку в false снова
 };

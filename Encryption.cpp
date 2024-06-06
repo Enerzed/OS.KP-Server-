@@ -12,8 +12,10 @@ AESEncryption::AESEncryption()
 
 std::string AESEncryption::Encrypt(const std::string& plaintext)
 {
+    // Создаем контекст
     EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
     EVP_CIPHER_CTX_init(ctx);
+    // Зашифровываем
     EVP_EncryptInit_ex(ctx, cipher, nullptr, reinterpret_cast<const unsigned char*>(key.c_str()), (unsigned char*)iv.c_str());
 
     int len = 0, ciphertext_len = 0;
@@ -27,7 +29,7 @@ std::string AESEncryption::Encrypt(const std::string& plaintext)
 
     EVP_EncryptFinal_ex(ctx, ciphertext_ptr + len, &len);
     ciphertext_len += len;
-
+    // Освобождаем контекст
     EVP_CIPHER_CTX_free(ctx);
     return ciphertext.substr(0, ciphertext_len);
 }
@@ -37,6 +39,7 @@ std::string AESEncryption::Decrypt(const std::string& ciphertext, std::string iv
 
     EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
     EVP_CIPHER_CTX_init(ctx);
+    // Расшифровываем
     EVP_DecryptInit_ex(ctx, cipher, nullptr, reinterpret_cast<const unsigned char*>(key.c_str()), (unsigned char*)iv.c_str());
 
     int len = 0, plaintext_len = 0;
@@ -50,7 +53,7 @@ std::string AESEncryption::Decrypt(const std::string& ciphertext, std::string iv
 
     EVP_DecryptFinal_ex(ctx, plaintext_ptr + len, &len);
     plaintext_len += len;
-
+    // Освобождаем контекст
     EVP_CIPHER_CTX_free(ctx);
     return plaintext.substr(0, plaintext_len);
 }
@@ -61,10 +64,6 @@ void AESEncryption::GenerateRandomIV()
     if (RAND_bytes(newIV, sizeof(newIV)) != 1)
         throw std::runtime_error("Error generating random IV");
     iv = (reinterpret_cast<const char*>(newIV));
-
-    //std::cout << sizeof(newIV) << std::endl;
-    //std::cout << "IV - " << newIV << std::endl;
-    //std::cout << "IV - " << iv << std::endl;
 }
 
 void AESEncryption::GenerateRandomKey()
@@ -73,10 +72,6 @@ void AESEncryption::GenerateRandomKey()
     if (RAND_bytes(newKey, sizeof(newKey)) != 1)
         throw std::runtime_error("Error generating random key");
     key = (reinterpret_cast<const char*>(newKey));
-
-    //std::cout << sizeof(newKey) << std::endl;
-    //std::cout << "KEY - " << newKey << std::endl;
-    //std::cout << "KEY - " << key << std::endl;
 }
 
 void AESEncryption::SetKey(std::string newKey)
@@ -106,65 +101,59 @@ RSAEncryption::RSAEncryption()
 
 std::string RSAEncryption::Encrypt(const std::string& plaintext)
 {
-    // Create RSA context
+    // Создаем контекст для RSA
     RSA* rsa = RSA_new();
     BIO* bio = BIO_new_mem_buf(publicKey.c_str(), -1);
     PEM_read_bio_RSAPublicKey(bio, &rsa, NULL, NULL);
     BIO_free(bio);
-
-    // Encrypt plaintext
+    // Зашифровываем
     int maxLength = RSA_size(rsa);
     std::string ciphertext;
     ciphertext.resize(maxLength);
     int ciphertextLength = RSA_public_encrypt(plaintext.length(), reinterpret_cast<const unsigned char*>(plaintext.c_str()), reinterpret_cast<unsigned char*>(&ciphertext[0]), rsa, RSA_PKCS1_PADDING);
     ciphertext.resize(ciphertextLength);
-
+    // Освобождаем контекст и возвращаем шифротекст
     RSA_free(rsa);
-
     return ciphertext;
 }
 
 std::string RSAEncryption::Decrypt(const std::string& ciphertext) 
 {
-    // Create RSA context
+    // Создаем контекст для RSA
     RSA* rsa = RSA_new();
     BIO* bio = BIO_new_mem_buf(privateKey.c_str(), -1);
     PEM_read_bio_RSAPrivateKey(bio, &rsa, NULL, NULL);
     BIO_free(bio);
-
-    // Decrypt ciphertext
+    // Расшифровываем
     int maxLength = RSA_size(rsa);
     std::string plaintext;
     plaintext.resize(maxLength);
     int plaintextLength = RSA_private_decrypt(ciphertext.length(), reinterpret_cast<const unsigned char*>(ciphertext.c_str()), reinterpret_cast<unsigned char*>(&plaintext[0]), rsa, RSA_PKCS1_PADDING);
     plaintext.resize(plaintextLength);
-
+    // Освобождаем контекст и возвращаем чистый текст
     RSA_free(rsa);
-
     return plaintext;
 }
 
 void RSAEncryption::GenerateKeys()
 {
-    // Generate RSA keys
+    //Генерируем ключи RSA
     RSA* rsa = RSA_generate_key(2048, RSA_F4, NULL, NULL);
-
-    // Export public key to PEM format
+    // Переводим публичный ключ в формат PEM, из него уже можно перевести в строчный
     BIO* publicKeyBio = BIO_new(BIO_s_mem());
     PEM_write_bio_RSAPublicKey(publicKeyBio, rsa);
     char* publicKeyBuffer;
     long publicKeyLength = BIO_get_mem_data(publicKeyBio, &publicKeyBuffer);
     publicKey = std::string(publicKeyBuffer, publicKeyLength);
     BIO_free(publicKeyBio);
-
-    // Export private key to PEM format
+    // Переводим приватный ключ в формат PEM, из него уже можно перевести в строчный
     BIO* privateKeyBio = BIO_new(BIO_s_mem());
     PEM_write_bio_RSAPrivateKey(privateKeyBio, rsa, NULL, NULL, 0, NULL, NULL);
     char* privateKeyBuffer;
     long privateKeyLength = BIO_get_mem_data(privateKeyBio, &privateKeyBuffer);
     privateKey = std::string(privateKeyBuffer, privateKeyLength);
     BIO_free(privateKeyBio);
-
+    // Освобождаем контекст
     RSA_free(rsa);
 }
 

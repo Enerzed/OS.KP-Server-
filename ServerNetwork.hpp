@@ -26,17 +26,16 @@
 class ServerNetwork
 {
 private:
-    sf::TcpListener listener;                       // TcpListerner - тот же сокет, только он имеет всего одну роль: для прослушивания входящих соединиений
-    std::vector<sf::TcpSocket*> clients;            // Массив сокетов для каждого клиента
-    std::vector<std::string> clientNames;           // Имена клиентов
-    std::vector<sf::Packet> packets;                // Полученные пакеты
-    std::vector<std::string> systemMessages;        // Различные сообщения
-    std::thread* connectionThread;                  // Отдельный поток для подключения клиентов
-    unsigned short port;                            // Порт для прослушивания
-
-    RSAEncryption rsa;
-    std::vector<AESEncryption*> aes;
-
+    std::vector<sf::TcpSocket*> clients;                                            // Массив сокетов для каждого клиента
+    std::vector<std::string> clientNames;                                           // Имена клиентов
+    std::vector<sf::Packet> packets;                                                // Полученные пакеты
+    std::vector<std::string> systemMessages;                                        // Различные сообщения
+    std::thread* connectionThread;                                                  // Отдельный поток для подключения клиентов
+    unsigned short port;                                                            // Порт для прослушивания
+    RSAEncryption rsa;                                                              // Объект класса RSAEncryption для соответственного шифрования
+    std::vector<AESEncryption*> aes;                                                // Объект класса AESEncryption для соответственного шифрования
+    sf::TcpListener listener;                                                       /* TcpListerner - тот же сокет, только он имеет всего одну роль
+                                                                                    : для прослушивания входящих соединиений*/
 public:
     ServerNetwork(unsigned short);
     void ConnectClients(std::vector<sf::TcpSocket*>*, std::vector<std::string>*);   // Подключаем клиентов к серверу
@@ -47,11 +46,11 @@ public:
     void ReceivePacket(sf::TcpSocket*, size_t);                                     // Получаем пакет и его содержимое
     void ManagePackets();                                                           // Получаем пакеты от каждого подключенного клиента (затем передаем их методу ReceivePacket)
     void Run();                                                                     // Запуск процесса
-    void ClearPackets();
-    void ClearSystemMessages();
+    void ClearPackets();                                                            // Очистка пакетов
+    void ClearSystemMessages();                                                     // Очистка системных сообщений
     // Setters
     // Getters
-    std::vector<sf::Packet> GetPackets();
-    std::vector<std::string> GetSystemMessages();
-    unsigned short GetPort();
+    std::vector<sf::Packet> GetPackets();                                           // Чтобы получить пакеты извне
+    std::vector<std::string> GetSystemMessages();                                   // Чтобы получить системные сообщения извне
+    unsigned short GetPort();                                                       // Получить текущий порт на котором работает чат
 };
