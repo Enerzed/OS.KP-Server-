@@ -36,7 +36,7 @@ private:
     std::string publicKey = "NO_KEY";               // Публичный ключ
     std::string privateKey = "NO_KEY";              // Приватный ключ
 public:
-    RSAEncryption();
+    RSAEncryption();                                // Констуктор, здесь подключаем основные методы OpenSSL
     std::string Encrypt(const std::string&);        // Шифрование
     std::string Decrypt(const std::string&);        // Дешифрование
     void GenerateKeys();                            // Генерация RSA ключа

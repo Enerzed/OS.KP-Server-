@@ -26,7 +26,7 @@ public:
 	void Update(sf::RenderWindow& window, sf::Time time);			// Функция обновления для управления
 	void AddTextBox(unsigned short);								// Добавляние очередного текствого окна с выводом сообщений из разных портов
 	void ModifyTextBox(std::string, std::string, unsigned short);	// Получаем сообщения и загружаем их textBoxes
-	void ModifyTextBoxSystemMessage(std::string, unsigned short);	// Уведомления системы об отключении
+	void ModifyTextBoxSystemMessage(std::string, unsigned short);	// Уведомления системы
 	void ModifyTextBoxSize();										// Чтобы сообщения постоянно в программе не копились удаляем самые старые (TEXT_BOX_MESSAGE_LIMIT)
 	// Getters
 	bool GetIsCreateServerNetwork();								// Для получения значения была ли нажата кнопка создания чата

@@ -37,7 +37,7 @@ private:
     sf::TcpListener listener;                                                       /* TcpListerner - тот же сокет, только он имеет всего одну роль
                                                                                     : для прослушивания входящих соединиений*/
 public:
-    ServerNetwork(unsigned short);
+    ServerNetwork(unsigned short);                                                  // Конструктор класса, начало чата на соответствующем порте, генерируем RSA ключи
     void ConnectClients(std::vector<sf::TcpSocket*>*, std::vector<std::string>*);   // Подключаем клиентов к серверу
     void DisconnectClient(sf::TcpSocket*, size_t);                                  // Отключаем клиентов от сервера
     void SendPacket(sf::Packet, sf::IpAddress, unsigned short);                     // Отправка пакета конкретному клиенту

@@ -23,9 +23,9 @@ private:
 	unsigned short port = BASE_PORT;			// Текущий порт
 	std::vector<int> serverVector;				// Вектор для сигналов
 public:
-	Server();
+	Server();									// Инициализация окна времени и другого
 	void Run();									// Основной цикл
-	void RunNetwork();							// Обработка серверов
+	void RunNetwork();							// Обработка чатов
 	void RunSystemMessages();					// Обработка системных сообщений
 	void RunPackets();							// Обработка полученных пакетов
 	void RunInterface();						// Обработка интерфейса
