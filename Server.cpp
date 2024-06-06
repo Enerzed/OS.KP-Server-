@@ -40,14 +40,7 @@ void Server::Run()
         // Передаем пакеты
         RunPackets();
         // Обновляем интерфейс
-        interface->Update(*window, time);
-
-        if (interface->GetIsCreateServerNetwork() == true)
-        {
-            interface->AddTextBox(port);
-            networks.push_back(new ServerNetwork(port++));
-            interface->SetIsCreateServerNetwork(false);
-        }
+        RunInterface();
         // Очищаем окно
         window->clear();
         // Render интерфейса должен быть перед показом его на экране для того, чтобы он был на первом плане
@@ -95,6 +88,18 @@ void Server::RunPackets()
             interface->ModifyTextBox(message, name, networks[iterator]->GetPort());
         }
         networks[iterator]->ClearPackets();
+    }
+}
+
+void Server::RunInterface()
+{
+    interface->Update(*window, time);
+
+    if (interface->GetIsCreateServerNetwork() == true)
+    {
+        interface->AddTextBox(port);
+        networks.push_back(new ServerNetwork(port++));
+        interface->SetIsCreateServerNetwork(false);
     }
 }
 

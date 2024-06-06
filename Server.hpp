@@ -27,6 +27,7 @@ public:
 	void RunNetwork();							// Обработка серверов
 	void RunSystemMessages();					// Обработка системных сообщений
 	void RunPackets();							// Обработка полученных пакетов
+	void RunInterface();						// Обработка интерфейса
 	void ServerDownHandler();					// Обработчик, если сервер был так или иначе выключен
 	void AddServerVector(int);					// Добавления сигнала для обработки
 };
