@@ -202,6 +202,7 @@ void ServerNetwork::ReceivePacket(sf::TcpSocket* client, size_t iterator)
         case PACKET_TYPE_CLIENT_NAME:
         {
             // В таком типе пакета в сообщении находится имя клиента, которое он себе выбрал
+            // Также это служит сообщением какой клиент подключился к чату, т.к. здесь содержится имя клиента
             clientNames[iterator] = aes[iterator]->Decrypt(message);
             // Выводим имя в консоль
             systemMessages.push_back("Client name is ");
