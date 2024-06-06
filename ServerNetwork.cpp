@@ -182,10 +182,15 @@ void ServerNetwork::ReceivePacket(sf::TcpSocket* client, size_t iterator)
         }
         case PACKET_TYPE_CLIENT_CONNECTED:
         {
+            // Пауза на 64 миллисекунды
             std::this_thread::sleep_for(std::chrono::milliseconds{ 64 });
+
+            // Закомменчено, т.к. этот броадкаст иногда вызывает краш у клиента, когда-нибудь разберемся с этим,
+            // Но сейчас клиент просто не знает клиента с каким IP:PORT сервер подсоединил к чату
             // Рассылаем пакет о подключении клиента
             //packet << (unsigned short)PACKET_TYPE_CLIENT_CONNECTED << client->getRemoteAddress().toString() << client->getRemotePort();
             //BroadcastPacket(packet);
+            
             // Отсылаем этому клиенту пакет с RSA ключом
             packet.clear();
             packet << (unsigned short)PACKET_TYPE_RSA_KEY << rsa.GetPublicKey();

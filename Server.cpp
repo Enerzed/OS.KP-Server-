@@ -1,7 +1,4 @@
-﻿// Устанавливаем кодировку utf-8
-
-
-#include "Server.hpp"
+﻿#include "Server.hpp"
 
 Server::Server()
 {
