@@ -148,10 +148,10 @@ void ServerNetwork::ReceivePacket(sf::TcpSocket* client, size_t iterator)
     sf::Packet packet;
     if (client->receive(packet) == sf::Socket::Disconnected)
     {
-        DisconnectClient(client, iterator);
         packet.clear();
         packet << (unsigned short)PACKET_TYPE_CLIENT_DISCONNECTED << clientNames[iterator];
         BroadcastPacket(packet);
+        DisconnectClient(client, iterator);
         return;
     }
 
